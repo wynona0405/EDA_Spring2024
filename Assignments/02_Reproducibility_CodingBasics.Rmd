@@ -127,7 +127,9 @@ What happens if there is a typo in your code? Type the following in the R window
 
 ```{r}
 long_name_for_illustration <- 11
-
+#when I type in long then click tab, what shows up is a drop down where the first item is longley. I can move down to refer to the object. 
+Long_name_for_illustration
+# If there's a typo, the object is not found. 
 ```
 
 ### Comments
@@ -145,7 +147,7 @@ Within your R code, it is often useful to include notes about your workflow. So 
 R functions are the major tool used in R. Functions can do virtually unlimited things within the R universe, but each function requires specific inputs that are provided under specific syntax. We will start with a simple function that is built into R, `seq`
 
 ```{r}
-seq(1, 10)
+seq(1, 10) # from, to
 ten_sequence <- seq(1, 10)
 ten_sequence
 
@@ -256,6 +258,7 @@ For now, here are some ways to access the help tools in R:
 -   Navigate to the help pane in the notebook and type the function into the search bar.
 
 ```{r}
+# When I typed the help(function) and the ??function, there was an error. SEEK HELP!
 ??seq
 ```
 
