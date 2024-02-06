@@ -65,7 +65,7 @@ library(tidyverse)
 
 Question: What happens in the console when you load a package?
 
-> Answer: 
+> Answer: It shows that the packages are loaded in blue text. 
 
 ### Import your datasets
 
@@ -104,7 +104,7 @@ USGS.flow.data <- read.csv("./Data/Raw/USGS_Site02085000_Flow_Raw.csv",stringsAs
 ## EXPLORE YOUR DATASET
 
 Take a moment to read through the README file associated with the USGS dataset on discharge at the Eno River. Where can you find this file? How does the placement and information found in this file relate to the best practices for reproducible data analysis?
-> ANSWER: 
+> ANSWER: We can find this file on a relative file path associatiated with the USGS file site. The best practice is to use a relative file path that can be accessible through any computer and that raw data should not be changed. 
 
 ```{r Exploring data}
 View(USGS.flow.data)
@@ -121,6 +121,8 @@ colnames(USGS.flow.data) <- c("agency_cd", "site_no", "datetime",
                               "gage.height.max", "gage.height.max.approval", 
                               "gage.height.min", "gage.height.min.approval", 
                               "gage.height.mean", "gage.height.mean.approval")
+
+# Create summary data 
 str(USGS.flow.data)
 dim(USGS.flow.data)
 length(USGS.flow.data)
@@ -153,11 +155,11 @@ summary(USGS.flow.data$gage.height.mean)
 ```
 Question: What types of research questions might make it favorable to remove NAs from a dataset, and what types of research questions might make it favorable to retain NAs in the dataset?
 
-> Answer: 
+> Answer: We can remove NAs when we don't need discharge and gauge height observations to answer the research question. **CHECK! Is this right? 
 
 ```{r Removing NAs}
 USGS.flow.data.complete <- na.omit(USGS.flow.data)
-dim(USGS.flow.data)
+dim(USGS.flow.data) #dim() sets or returns the dimension of the matrix, array, or data frame
 dim(USGS.flow.data.complete)
 
 mean(USGS.flow.data.complete$discharge.mean)
@@ -187,14 +189,14 @@ In some cases when dates are provided as integers, you may need to provide an or
 help(as.Date)
 
 # Adjust date formatting [to be done in lab session]
-# Write code for three differtent date formats.
+# Write code for three different date formats.
 # An example is provided to get you started.
 # (code must be uncommented)
 today <- Sys.Date()
 format(today, format = "%B")
-#format(today, format = "")
-#format(today, format = "")
-#format(today, format = "")
+format(today, format = "%Y-%m-%d")
+format(today, format = "%a")
+format(today, format = "%y")
 
 USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%m/%d/%y") 
 ```
@@ -208,7 +210,7 @@ USGS.flow.data$datetime <- format(USGS.flow.data$datetime, "%y%m%d")
 #
 create.early.dates <- (function(d) {
        paste0(ifelse(d > 191226,"19","20"),d)
-       })
+       }) #HELP. I don't understand this. 
 #
 USGS.flow.data$datetime <- create.early.dates(USGS.flow.data$datetime)
 

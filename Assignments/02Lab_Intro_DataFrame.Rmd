@@ -32,6 +32,7 @@ Suppose you want just the column speed. How would you access that data?
 
 ```{r}
 cars$speed
+# The column was transformed to a simple vector
 ```
 
 How would you store it on another object?
