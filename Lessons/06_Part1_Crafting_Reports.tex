@@ -1,0 +1,426 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  ignorenonframetext,
+]{beamer}
+\usepackage{pgfpages}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
+% Prevent slide breaks in the middle of a paragraph
+\widowpenalties 1 10000
+\raggedbottom
+\setbeamertemplate{part page}{
+  \centering
+  \begin{beamercolorbox}[sep=16pt,center]{part title}
+    \usebeamerfont{part title}\insertpart\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{section page}{
+  \centering
+  \begin{beamercolorbox}[sep=12pt,center]{part title}
+    \usebeamerfont{section title}\insertsection\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{subsection page}{
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center]{part title}
+    \usebeamerfont{subsection title}\insertsubsection\par
+  \end{beamercolorbox}
+}
+\AtBeginPart{
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \frame{\subsectionpage}
+}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\newif\ifbibliography
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Crafting Reports},
+  pdfauthor={John Fay \& Luana Lima},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Crafting Reports}
+\subtitle{ENV 859 - Environmental Data Exploration}
+\author{John Fay \& Luana Lima}
+\date{Spring 2024}
+
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}{Learning Outcomes}
+\protect\hypertarget{learning-outcomes}{}
+\begin{itemize}
+\tightlist
+\item
+  Explain why we use RMarkdown \& knit to PDF
+\item
+  Navigate YAML \& use it to enhance to your documents
+\item
+  Control how \emph{code} appears in knit output: code chunk settings
+\item
+  Control how \emph{text} appears in knit output:markdown techniques
+\item
+  Understand the knitting process and how it converts Rmd to PDF, HTML,
+  etc.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Use of RStudio \& RMarkdown so far\ldots{}}
+\protect\hypertarget{use-of-rstudio-rmarkdown-so-far}{}
+\begin{itemize}
+\tightlist
+\item
+  We have provided you with Rmd files
+\item
+  Write/edit code (code chunks)
+\item
+  Document that code (text blocks)
+\item
+  Generate PDFs of code and its outputs
+\item
+  Integrate with Git/GitHub for version control
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Advantanges of RMarkdown}
+\protect\hypertarget{advantanges-of-rmarkdown}{}
+\begin{block}{Why do we use RMarkdown?}
+\protect\hypertarget{why-do-we-use-rmarkdown}{}
+\begin{itemize}
+\tightlist
+\item
+  Written in basic text (fully reproducible)
+\item
+  Works well with version control
+\item
+  Allows for code and documentation in one file
+\item
+  When knit, can produce tidy output in many file formats
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}{RMarkdown: A deeper look}
+\protect\hypertarget{rmarkdown-a-deeper-look}{}
+\begin{block}{The three components of RMarkdown}
+\protect\hypertarget{the-three-components-of-rmarkdown}{}
+\begin{itemize}
+\tightlist
+\item
+  YAML
+\item
+  Text (markdown)
+\item
+  Code (R or ???)
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{YAML: What is it?}
+\protect\hypertarget{yaml-what-is-it}{}
+\begin{itemize}
+\tightlist
+\item
+  ``Yet another markdown language''\\
+  ``YAML ain't markdown language''
+\item
+  Always at the beginning of an Rmd
+\item
+  Enclosed by three dashes \texttt{-\/-\/-}
+\item
+  Includes instructions applied when knitting
+\item
+  Instructions take the form of \texttt{key}:\texttt{value} pairs
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{YAML, An Exercise}
+\protect\hypertarget{yaml-an-exercise}{}
+\begin{enumerate}
+\tightlist
+\item
+  Create a new Rmd in R
+\item
+  Set the title, author, date
+\item
+  Set output to be PDF
+\item
+  View the YAML in the Rmd produced
+\item
+  Knit the document \& view the PDF
+\item
+  Add new entries:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \texttt{subtitle:\ "A\ draft\ copy"}
+  \item
+    \texttt{toc:\ true}
+  \end{itemize}
+\item
+  Add a few markdown headers (\texttt{\#\#})
+\item
+  Knit and view\ldots{}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{YAML, A Recap}
+\protect\hypertarget{yaml-a-recap}{}
+\begin{itemize}
+\tightlist
+\item
+  YAML setting apply to the entire document
+\item
+  YAML is read in the knit process
+\item
+  YAML has even more advanced settings\\
+  \href{https://raw.githubusercontent.com/rstudio/cheatsheets/main/rmarkdown.pdf}{Markdown
+  Cheat sheet}\\
+  \url{https://bookdown.org/yihui/rmarkdown/pdf-document.html}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{The knitting process}
+\protect\hypertarget{the-knitting-process}{}
+\begin{itemize}
+\tightlist
+\item
+  The knitting sequence
+  \href{https://env872.github.io/assets/images/rmarkdownflow.png}{\includegraphics{img/rmarkdownflow.png}}
+\item
+  \texttt{Rmd}→{[}\emph{knitr}{]}→\texttt{md}:\\
+  Guided by instructions in YAML \& Code chunks
+\item
+  \texttt{md}→{[}\emph{Pandoc}{]}→\texttt{PDF}:\\
+  Markdown translated into PDF\textbar HTML\textbar Word\textbar\ldots{}
+  by Pandoc
+\item
+  Example\ldots{}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Code Chunks: Recap}
+\protect\hypertarget{code-chunks-recap}{}
+\begin{itemize}
+\tightlist
+\item
+  Where code is executed
+\item
+  Surrounded by triplets of tics:
+  \texttt{\textasciigrave{}\textasciigrave{}\textasciigrave{}}
+\item
+  Chunks have attributes, set within \texttt{\{\ \ \}}\\
+  For example: \texttt{\{r\ plot\ AQI,\ echo=FALSE\}}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Code Chunks: Example}
+\protect\hypertarget{code-chunks-example}{}
+\begin{itemize}
+\tightlist
+\item
+  Shortcuts to create
+\item
+  Coding languages
+\item
+  Setting chunk attributes
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \url{https://yihui.org/knitr/options/\#chunk-options}
+  \item
+    \url{https://bookdown.org/yihui/rmarkdown/r-code.html}
+  \end{itemize}
+\item
+  Global code chunk attributes\\
+  \texttt{knitr::opts\_chunk\$set(echo\ =\ TRUE)}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Code Chunks: Plots and Figures}
+\protect\hypertarget{code-chunks-plots-and-figures}{}
+\begin{itemize}
+\tightlist
+\item
+  \texttt{fig.cap}: Set figure Caption
+\item
+  \texttt{fig.width}, \texttt{fig.height}: Set figure size, or\ldots{}
+\item
+  \texttt{fig.dim} to set both (e.g.~\texttt{fig.dim\ =\ c(5,3)})
+\item
+  \texttt{out.width}, \texttt{out.height}: scale figs in output docs\\
+  e.g.~\texttt{out.width=80\%} to set at 80\% of page width
+\item
+  \texttt{fig.align}: set alignment (`left', `center', etc.)
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Markdown: Recap}
+\protect\hypertarget{markdown-recap}{}
+\begin{block}{Common stylings:}
+\protect\hypertarget{common-stylings}{}
+\begin{itemize}
+\tightlist
+\item
+  \texttt{\#}: headings
+\item
+  \texttt{\textgreater{}}: block quotes
+\item
+  Ordered and unordered lists\ldots{}
+\item
+  Hyperlinks\ldots{}
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}{Markdown: Documentation}
+\protect\hypertarget{markdown-documentation}{}
+\begin{itemize}
+\tightlist
+\item
+  Quick reference
+\item
+  Cheatsheet
+\item
+  Reference Guide
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Markdown: Exercises}
+\protect\hypertarget{markdown-exercises}{}
+\begin{itemize}
+\tightlist
+\item
+  Creating tables
+\item
+  Inserting images
+\item
+  Additional text formatting
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Markdown: Useful techniques}
+\protect\hypertarget{markdown-useful-techniques}{}
+\begin{itemize}
+\tightlist
+\item
+  \texttt{\textbackslash{}newpage}
+\item
+  \texttt{\textbackslash{}listoftables}
+\item
+  \texttt{\textbackslash{}listoffigurres}
+\item
+  \texttt{-\/-\/-}
+\item
+  Using the \emph{Visual Editor}!
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Pretty tables with \texttt{kable}}
+\protect\hypertarget{pretty-tables-with-kable}{}
+\begin{itemize}
+\tightlist
+\item
+  Part of the \texttt{knitr} package
+\item
+  Convert a dataframe to a markdown table\\
+  Makes for aethetic output
+\item
+  Example\ldots{}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Exercises!}
+\protect\hypertarget{exercises}{}
+\begin{itemize}
+\tightlist
+\item
+  Open \texttt{06Exercise\_Markdown.Rmd} and knit as is
+\item
+  Add a table of contents
+\item
+  Set the first code chunk to run, but:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    code is not shown in knit output
+  \item
+    warnings are not shown in output
+  \end{itemize}
+\item
+  Show summary dataframes as tables (using \texttt{kable})
+\item
+  Add a list of tables using \texttt{\textbackslash{}listoftables}
+\end{itemize}
+\end{frame}
+
+\end{document}

@@ -1,0 +1,11 @@
+---
+title: "YAML Exercise"
+subtitle: "A Draft Copy"
+author: "Wynona Curaming"
+output: pdf_document
+date: "2024-02-15"
+toc: true
+---
+## Hello
+
+### Bye

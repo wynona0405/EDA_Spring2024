@@ -1,20 +1,19 @@
 ---
 title: "Crafting Reports"
-subtitle: "ENV 859 - Environmental Data Exploration"
 author: "John Fay & Luana Lima"
 date: "Spring 2024"
-output:  ioslides_presentation 
+output:
+  beamer_presentation: default
+  ioslides_presentation: default
+subtitle: "ENV 859 - Environmental Data Exploration"
 ---
 
 ## Learning Outcomes
 -   Explain why we use RMarkdown & knit to PDF
 -   Navigate YAML & use it to enhance to your documents
--   Control how *code* appears in knit output:\
-    code chunk settings
--   Control how *text* appears in knit output:\
-    markdown techniques
--   Understand the knitting process and\
-    how it converts Rmd to PDF, HTML, etc.
+-   Control how *code* appears in knit output: code chunk settings
+-   Control how *text* appears in knit output:markdown techniques
+-   Understand the knitting process and how it converts Rmd to PDF, HTML, etc.
 
 ## Use of RStudio & RMarkdown so far...
 -   We have provided you with Rmd files
