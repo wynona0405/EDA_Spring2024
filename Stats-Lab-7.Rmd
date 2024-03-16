@@ -1,0 +1,258 @@
+---
+title: "Stats Lab 7"
+author: "Wynona"
+date: "2024-02-28"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(sjPlot)
+library(fastDummies)
+library(dplyr)
+library(ggplot2)
+library(GGally)
+```
+
+## QUESTION 1: 
+Start by fitting an intercept-only model: agb = β0 + ε, ε ∼ N (0, σ2I) Call this model ‘fit_1’.
+a. Report the value of β0. How does it compare to the sample mean of agb?
+b. What is the standard error? How does it compare to the standard error of the sample mean?
+
+```{r question 1}
+#Q1a)
+AGB.df<-read.csv("~/ENV 872/EDA_Spring2024/Misc./agb.csv", header=T)
+
+colnames(AGB.df)
+
+fit_1<-lm(agb~ 1, AGB.df)
+summary(fit_1)
+
+mean(AGB.df$agb)
+
+#Q1b)
+sd(AGB.df$agb)
+```
+a) The value of β0 is -234.938 The sample mean of agb is 410.7327 which is much higher than the value of β0.
+b) The standard error of the intercept is 6.482. The sample standard error is 102.4953 which is much higher. 
+
+## QUESTION 2
+Now suppose you hypothesize that AGB differs between old-growth and new-growth forests. Create a binary indicator variable from the growth variable. Code this variable as 1 if the sample is from an old growth forest, and 0 otherwise. 
+```{r oldgrowth_dummy}
+AGB.df<- AGB.df%>%
+  mutate(old.growth = ifelse(growth =="Old Growth",1,0))
+```
+
+Next, expand on the model above by including this new indicator variable, as follows:
+agb = β0 + old.growth × β1 + ε, ε ∼ N (0, σ2I) Call this model ‘fit_2’.
+
+```{r}
+fit_2<-lm(agb~ old.growth, AGB.df)
+summary(fit_2)
+```
+
+a. Report the value of β0. How does it compare to the sample mean of abg among new-growth forest?
+> Answer: β0 is 363.469. THe sample mean of abg among new-growth forests are the same. 
+
+b. Report the difference in means between AGB among samples from old-growth forests and new-growth
+forests. Calculate the difference as the mean of AGB in old-growth forests minus the mean of AGB in new-growth forests.
+> Answer: The difference in means between AGB among old vs. new-growth forests is 93.778. 
+
+c. What is the value of the estimate for the old-growth forest?
+> Answer: THe sample mean of abg among old-growth forests is 363.469 + 93.778 = 457.247
+
+```{r}
+y<-363.469 + 93.778
+y
+```
+
+d. Interpret the estimate of old-growth forest (Do not interpret the estimate in terms of a hypothesis test).
+> Answer: The estimate of old-growth forest is the incremental adjustment to the intercept that reflects the difference in AGB between old- and new-growth forests.
+
+e. Conduct a hypothesis test in which the null hypothesis is that there is no difference in AGB between new-growth and old-growth forests.
+```{r}
+t.test(agb~old.growth, data=AGB.df)
+```
+>Answer: After running the t-test, we reject the null hypothesis that there is no difference in AGB between new and old-growth forests because the p-value is 2.162e-14 which is way smaller than 0.05.
+
+f. Make a scatter plot of the data and add the regression lines: one for old growth forest; one for new growth forest. (Hint: the indicator for old-growth versus new-growth should be on the x-axis, and AGB on the y-axis). Be sure to use a different color for old growth versus new growth data points and regression lines (e.g. dark green for old growth data points and regression line and blue for new growth data points and regression line).
+
+```{r}
+colnames(AGB.df)
+ggplot(AGB.df, aes(old.growth, agb))+geom_point(aes(col=old.growth))+ geom_line(aes(col=old.growth))
+                                                
+```
+
+## Question 3
+Now suppose you are interested in understanding whether or not basal area is associated with AGB. Now fit a simple linear regression of the following form: y = β0 + basal.areaβ1 + ε, ε ∼ N (0, σ2I). Call this model ‘fit_3’
+
+```{r}
+fit_3 <-lm(agb ~ basal_area, AGB.df)
+```
+
+a. Report the value of β0 and interpret its meaning.
+>Answer: β0 is -113.38. This suggests that when basal area is 0, above ground biomass is -113.38. [ADD UNITS]
+
+b. Report the value of β1 and interpret its meaning (not in terms of a hypothesis test, but substantively).
+>Answer: β1 is 18.89, which means that as basal_area increases by 1, the above ground biomass increases by 18.89. [ADD UNITS]
+
+c. Now define a new variable called ‘basal.area.centered’ in which you subtract the mean basal area from each observation of ‘basal.area’. Refit the above model. Report the new value of β0 and interpret its meaning.
+```{r}
+colnames(AGB.df)
+
+AGB.df<- AGB.df%>%
+  mutate(basal.area.centered= (basal_area-mean(basal_area)))
+AGB.df
+
+fit_3_centered<- lm(agb ~ basal.area.centered, AGB.df)
+
+summary(fit_3_centered)
+```
+
+>Answer: The new value of β0 is 410.7327, which refers to the expected above ground biomass for samples with average basal area.
+
+d. Report the value of β1 again and interpret its meaning (again, not in terms of a hypothesis test). Did the value of β1 change? Why or why not?
+>Answer: The new value of β1 is 18.8948, which did not change from before. This is because we only centered the values around the mean basal area (basically shifting the datapoints to the left), but not changing the slope. 
+
+e. Conduct a hypothesis test for the effect of ‘basal.area’ (or ‘basal.area.centered’) on AGB under the null hypothesis of no effect.
+>Answer: The p-value of the F-statistic under anova is <2.2e-16, which suggests that we reject the null hypothesis that basal.area has no statistically significant effect on AGB. 
+
+```{r}
+anova(fit_3)
+```
+
+f. Make a scatterplot of the data and add the regression line.
+```{r}
+ggplot(AGB.df, aes(basal.area.centered, agb))+geom_point()+geom_smooth(method=lm)
+```
+
+## Question 4
+Now suppose you wish to include both the difference between old-growth forest and new-growth forest, as well as the effect of basal area on AGB. y = β0 + old.growthβ1 + basal.area.centeredβ2 + ε, ε ∼ N (0, σ2I). Call this model ‘fit_4’.
+```{r}
+fit_4<- lm(agb~old.growth+basal.area.centered, AGB.df)
+summary(fit_4)
+```
+a. What is the estimate of the intercept (β0), and what does it represent in terms of AGB?
+>Answer: The estimate of β0 is 374.399. In terms of AGB, it represents the expected value of above ground biomass in new-growth forests with average basal area.
+
+b. What is the estimate of β1 and what does it represent in terms of AGB?
+>Answer: The estimate of β1 is 72.090. In terms of AGB, it represents the expected difference in above ground biomass in new vs. old growth forests with average basal area.
+
+c. What is the estimate of β2 and what does it represent in terms of AGB?
+>Answer: The estimate of β2 18.003. In terms of AGB, it represents that for every 1 m^2 increase in basal area, above ground biomass increases by 18. 
+
+d. Make a scatterplot of the data and add the regression lines. Follow the same color scheme used in question 2.
+```{r}
+ggplot(AGB.df, aes(x=basal.area.centered, y=agb, color=old.growth))+geom_point()+geom_smooth(method=lm, aes(group=old.growth, color=old.growth))
+
+```
+
+e. Comment on this plot? Do the results look reasonable? Does the slope of each regression line fit the data well?
+>Answer: On first glance, the results look reasonable. They show that old growth forests has higher AGB for a given basal area compared to new growth forests. The slope of each regression line fit the data well since R^2 is very high, 0.9527. However, a few assumptions for regression may be slightly violated. The residuals vs fitted graph shows a slight banana shape so the assumption of linearity may be slightly violated. The points are fairly following the diagonal for the Q-Q residuals (only very slight deviations for values 182, 79 and 193) so no assumption is broken there. For the scale-location plot, it appears that the data points are well-distributed (with a slight bend upwards due to points 193 and 79) so the homoscedasticity assumption is met. In the residuals-leverage plot none of the values are beyond the dotted line representing Cook's distance, which suggests that while these values have a relatively strong influence, they are not outliers. When the shapiro.test for normalcy was run, the p-value is 0.6063, which suggests that the assumption of normalcy is broken.
+
+```{r}
+plot(fit_4)
+shapiro.test(fit_4$residuals)
+```
+
+## Question 5
+Now suppose you wish to test whether or not the effect of basal area differs by old growth versus new growth. To do this, construct a new covariate defined as ‘old.basal.area.centered’ = ‘old.growth’ × ‘basal.area.centered’. Now fit the following regression model: y = β0 + old.growthβ1 + basal.area.centeredβ2 +
+old.basal.area.centeredβ3 + ε, ε ∼ N (0, σ2I). Call this model ‘fit_5’.
+
+```{r}
+AGB.df<-AGB.df%>%
+  mutate(old.basal.area.centered = old.growth*basal.area.centered)
+
+colnames(AGB.df)
+
+fit_5<-lm(agb ~ old.growth + basal.area.centered + old.basal.area.centered, data= AGB.df)
+
+summary(fit_5)
+```
+
+a. What is the estimate of β0 and what does it represent in terms of AGB?
+>Answer: The estimate of β0 is 373.5625. This is the expected value of AGB in new-growth forests with average basal area. 
+
+b. What is the estimate of β1 and what does it represent in terms of AGB?
+>Answer: The estimate of β1 is 72.1542. This is the difference in expected value of AGB in new-growth forests vs. old-growth forests with average basal area. 
+
+c. What is the estimate of β2 and what does it represent in terms of AGB?
+>Answer: The estimate of β2 is 16.6245. This is the expected change in AGB for each m^2 increase in basal area among new-growth forests.
+
+d. What is the estimate of β3 and what does it represent in terms of AGB?
+>Answer: The estimate of β3 is 2.6714. This is the adjustment to the slope for each m^2 increase in basal area among old-growth forests. 
+
+e. Make a scatterplot of the data and add the regression lines. Follow the same color scheme used in questions 2 and 4.
+```{r}
+AGB.df<-AGB.df%>%
+  mutate(old.basal.area.centered = old.growth*basal.area.centered)
+
+colnames(AGB.df)
+
+fit_5<-lm(agb ~ old.growth + basal.area.centered + old.basal.area.centered, data= AGB.df)
+
+summary(fit_5)
+
+ggplot(AGB.df, aes(x=old.basal.area.centered, y=agb))+geom_point()+geom_smooth(method=lm)
+```
+
+f. Comment on this plot. Do the results look reasonable? How does the plot compare to those from questions 3 and 4? 
+>Answer: The results look reasonable as the regression assumptions have been met and this model seems to be good at explaining the variability of agb and old basal area centered (R-squared = 0.9568). The centerline in the residuals vs. Fitted chart is fairly straight and in the middle so I think the linearity assumption is met. The Q-Q residuals line is fairly straight as well, with only a few data points at the tail end that deviate from the diagnoal line (values 182, 42 and 22). The scale-location graph shows that the plots are pretty well spread out so the homoscedasticity assumption is met. As for the residuals vs leverage graph, none of the data points are outside the dashed lines that represent Cook's distance so it is safe to assume that the data points, even point 233, is not influential enough to significantly shape the regression. 
+
+```{r}
+plot(fit_5)
+shapiro.test(fit_5$residuals)
+```
+
+
+## Question 6
+These data were collected from several different states (CA,CO,ME,NC,WA). Suppose now you hypothesize that AGB varies by state. To explore this, construct 4 binary indicator variables as follows:
+‘ca’: code this variables as a 1 if the observation is from CA, and 0 otherwise
+‘co’: code this variables as a 1 if the observation is from CO, and 0 otherwise
+‘me’: code this variables as a 1 if the observation is from ME, and 0 otherwise
+‘nc’: code this variables as a 1 if the observation is from NC, and 0 otherwise
+Now fit the following model: y = β0 + caβ1 + coβ2 + meβ3 + ncβ4 + ε, ε ∼ N (0, σ2I) Call this model ‘fit_6’.
+```{r states}
+colnames(AGB.df)
+head(AGB.df$state)
+AGB.df<- AGB.df%>%
+  mutate(ca = ifelse(state =="CA",1,0))%>%
+  mutate(co = ifelse(state =="CO",1,0))%>%
+  mutate(me = ifelse(state =="ME",1,0))%>%
+  mutate(nc = ifelse(state =="NC",1,0))
+
+fit_6<- lm(agb~ca+co+me+nc, data=AGB.df) 
+summary(fit_6)
+```
+
+a. What is the estimate of the β0 and what does it represent in terms of AGB?
+>Answer: The estimate of β0 is 411.75 and this is the expected AGB in WA.
+
+b. What is the estimate of β1 and what does it represent in terms of AGB?
+>Answer: The estimate of β1 is 16.34 and this is the difference in expected AGB between WA and CA, holding all else constant.
+
+c. What is the estimate of β2 and what does it represent in terms of AGB?
+>Answer: The estimate of β2 is -32.11 and this is the difference in expected AGB between WA and CO, holding all else constant. 
+
+d. What is the estimate of β3 and what does it represent in terms of AGB?
+>Answer: The estimate of β3 is 24.54 and this is the difference in expected AGB between WA and ME, holding all else constant.
+
+e. What is the estimate of β4 and what does it represent in terms of AGB?
+>Answer: The estimate of β4 is -18.35 and this is the difference in expected AGB between WA and NC, holding all else constant.
+
+f. Make a scatterplot of the data (with states on the x-axis and AGB on the y-axis) and plot the regression lines. As before, color the data points and regression lines by state.
+```{r}
+ggplot(data= AGB.df, aes(x=state, y=agb, color=state))+geom_point()
+#Need to add regression lines
+```
+
+
+g. Comment on this plot? Based on the plot and the results from the model, does there appear to be variability in AGB by state? 
+>Answer: With p-value of 0.02888, there seems to be statistically significant variability in AGB by state. Based on the R-squared value, 4.448% of the variation can be explained by this model, which suggests that other variables need to be taken into account. When testing for the regression assumptions, it appears that the assumption of normalcy in distribution of residuals is violated because the p-value is quite high (0.444). However, looking at the residuals vs leverage graph, it appears that none of the data points can be considered outliers since all are within Cook's distance. The data points on the Q-Q residuals plot are fairly straight, and so are the center lines for the Residuals vs. Fitted and Scale location graphs. 
+
+```{r}
+plot(fit_6)
+shapiro.test(fit_6$residuals)
+```
