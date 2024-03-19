@@ -103,13 +103,13 @@ st_crs(counties_sf)
 nrow(counties_sf)
 
 #Reveal the extent of this dataset via the st_bbox() function
-st_bbox(counties_sf)
+st_bbox(counties_sf) #st is a spatial command. this creates a spatial bounding box 
 
 #View the data
 head(counties_sf)
 
 #Plot the data, colored by area of land in each county
-mapView(counties_sf, zcol = "AWATER")
+mapView(counties_sf, zcol = "AWATER") #zcol colours by the chosen feature 
 ```
 
 ### 2.2.2 Read in and explore 8-digit HUC watersheds for NC
@@ -118,7 +118,7 @@ mapView(counties_sf, zcol = "AWATER")
 
 ```{r read HUCs shapefile}
 #Read the shapefile into an sf dataframe named "huc8_sf"
-
+huc8_sf<- st_read()
 
 #Reveal the columns
 
