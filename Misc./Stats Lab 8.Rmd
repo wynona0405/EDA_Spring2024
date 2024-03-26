@@ -1,11 +1,14 @@
 ---
 title: "Stats Lab 8"
-author: "Wynona"
+author: "Wynona Curaming"
 date: "2024-03-14"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=TRUE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(sjPlot)
 library(fastDummies)
@@ -29,10 +32,10 @@ fit_1<- glm(disease~1, family="binomial", data=tree_disease_df)
 summary(fit_1)
 ```
 a. Report the estimated value of β0. What does it correspond to?
->Answer: The estimated value of β0 is 0.3888. This corresponds to the log odds of finding disease in a sampled forests.
+>Answer: The estimated value of β0 is 0.3888 (with a standard error of 0.1289, a z-value of 3.017 and p-value of 0.00256), which corresponds to the log odds of finding disease in a sampled forest. The odds of finding disease in a sampled forest is exp(0.3888).
 
 b. Given the estimate of the intercept, what is the predicted probability (i.e. ˆp) of finding the disease in a forest?
->Answer: The probability of finding the disease in a forest in 0.5959938. 
+>Answer: The probability of finding the disease in a forest is 0.5959938. 
 
 ```{r}
 p_disease<-exp(0.3888)/(1+exp(0.3888))
@@ -49,11 +52,14 @@ summary(fit_2)
 
 a. Report the estimate of β0. What does it represent, and how does it compare to the estimate from
 question 1?
->Answer: The estimate of β0 is 0.7053. It represents the log odds of finding the disease in new growth forests. It is almost twice as large as the estimate in question 1.
+>Answer: The estimate of β0 is 0.7053 with a standard error of 0.1909, a z-value of 3.695 and a p-value of 0.00022. 0.7053 represents the log odds of finding the disease in new growth forests. It is almost twice as large as the estimate in question 1. This means that the odds of finding a disease in new growth forests is 2.024454 times that of not finding a disease in  
 
-b. Based on your estimates from the model, what is the predicted probability of finding the disease in an
-old-growth forest?
->Answer: The probability of finding the disease in old-growth forests is 0.523807. The log odds of finding the disease in old-growth forests is 0.0953.
+```{r}
+exp(0.7053)
+```
+
+b. Based on your estimates from the model, what is the predicted probability of finding the disease in an old-growth forest?
+>Answer: The predicted probability of finding the disease in an old-growth forest is 0.523807.
 
 ```{r}
 log_odds_disease_old<-0.7053+(-0.6100)
@@ -64,7 +70,7 @@ p_disease_oldforests
 
 c. Based on your estimates from the model, What is the predicted probability of finding the disease in a
 new-growth forest?
->Answer: 0.6693618 is the probability of finding the disease in a new-growth forest.
+>Answer: 0.6693618 is the predicted probability of finding the disease in a new-growth forest.
 
 ```{r}
 p_disease_newforests<- (exp(0.7053))/(1+exp(0.7053))
@@ -80,12 +86,7 @@ exp(-0.6100)
 ```
 
 e. Conduct a hypothesis test in which the null hypothesis is that there is no difference in disease status between new-growth and old-growth forests
->Answer: The p-value is 0.01892. Since it is less than 0.05, we reject the null hypothesis of no difference in disease status between new-growth and old-growth forests.
-
-```{r}
-t.test(disease~old, data=tree_disease_df)
-```
-
+>Answer: Based on the summary table, the p-value for beta1 is 0.01956 (with a standard error of 0.2613 and a z-score of -2.335). Since the p-value is less than alpha=0.05 (which we chose before doing the experiment to test for statistical significance), we reject the null hypothesis of no difference in disease status between new-growth and old-growth forests. Thus, we can conclude that the disease status differs between new and old-growth forests. 
 
 ## Question 3 
 Now suppose you are interested in building on your model to understand whether or not basal area (centered on its mean) is associated with disease status, independent of old-growth status. Now fit a logistic regression of the following form: disease = β0 + +old.growthβ1 + basal.areaβ2. Call this model ‘fit_3’
@@ -99,7 +100,7 @@ summary(fit_3)
 
 a. Calculate the Odds Ratio for the effect of basal area (centered) on disease status and interpret its
 meaning (not in terms of a hypothesis test, but substantively).
->Answer: The odds ratio is 1 which suggests that the odds of finding a disease versus not finding a disease in different basal areas are the same.  
+>Answer: The odds ratio is 1 (to be more precise, 1.00008) which suggests that there is no difference in the odds of disease status in different basal areas. This possibility is further substantiated by the fact that the log odds of basal-area centered has a p-value of 0.997610, which is greater than alpha=0.05, a standard error of 0.02659893 and a z-value of 0.003. 
 
 ```{r}
 exp(0.00007968)
@@ -108,13 +109,7 @@ exp(0.00007968)
 
 b. Conduct a hypothesis test for the effect of basal area (centered) on disease status under the null
 hypothesis of no effect.
->Answer: The p-value is 0.997610, which is higher than 0.05, so the null hypothesis stands.  
-
-```{r}
-anova(fit_3)
-```
-
-#Question for TA: Can we just look at the p-value in the summary table or do we need to run an additional test?
+>Answer: Based on the summary table about, the p-value is 0.997610, which is higher than 0.05, and the z-value is 0.003 which within -1.96 and 1.96, so the null hypothesis stands. The standard error is 0.02659893. Therefore, we can conclude that basal area (centered) makes no difference on disease status.
 
 ## Question 4 
 Now suppose you wish to better understand whether temperature anomalies are associated with the disease
@@ -127,11 +122,11 @@ summary(fit_4)
 
 a. Calculate the Odds Ratio for the effect of temperature anomalies on disease status and interpret its
 meaning as in prior questions.
->Answer: The odds ratio for the effect of temperature anomalies on disease status is 1.618361 which suggests that the odds of finding a disease in trees is higher for those with temperature anomalies than without. 
+>Answer: The odds ratio for the effect of temperature anomalies on disease status is 1.618361 which suggests that the odds of finding a disease in trees increases by a factor of 1.618361 for a 1 degree C increase in temperature anomalies. The coefficient for temperature anomaly has a standard error of 0.154128, a z value of 3.123 and a p-value of 0.00179, which is less than the chosen alpha = 0.05. Thus we can conclude that temperature anomalies increase the odds of disease in trees.  
 
 ```{r}
 exp(0.481414)
 ```
 b. Based on the model you just fit, what factors would you conclude are associated with increased odds of disease, and what factors would you include are associated with decreased odds of disease? Why? Hint:
 do not simply note which variables were “statistically significant”, since statistical significance is not a measure of scientific importance.
-The factors associated with increased odds of disease is if the tree is from new-growth forest and if there are temperature anomalies. This suggests that disease thrives in slightly higher temperatures and that old-growth forests are more resilient to disease. I identified these two variables because the log-odds for these variables are not 1 and that the p-values for these variables are larger than 0.05 (unlike basal area). 
+>Answer: The factors associated with increased odds of disease is if the tree is from new-growth forest and if there are temperature anomalies. This suggests that disease thrives in slightly higher temperatures and that old-growth forests are more resilient to disease. I identified these two variables because the odds ratios for the coefficients of these variables are not 1 and that their p-values are larger than 0.05 (unlike basal area) and have a z-value greater than 1.96 or less than -1.96.
