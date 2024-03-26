@@ -1,7 +1,10 @@
 ---
-title: "Assignment 10: Data Scraping"
+title: 'Assignment 10: Data Scraping'
 author: "Wynona Curaming"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 ---
 
 ## OVERVIEW
@@ -25,7 +28,8 @@ This exercise accompanies the lessons in Environmental Data Analytics on data sc
 
 ```{r 1. Project Setup, message = FALSE}
 #1 
-library(tidyverse);library(lubridate);library(viridis);library(here);library(rvest);library(dataRetrieval);library(tidycensus);library(ggplot2);library(dplyr)
+library(tidyverse);library(lubridate);library(viridis);library(here);library(rvest)
+library(dataRetrieval);library(tidycensus);library(ggplot2);library(dplyr)
 
 getwd()
 
@@ -57,7 +61,6 @@ Water_URL
 In the code chunk below scrape these values, assigning them to four separate variables.
 
 >HINT: The first value should be "Durham", the second "03-32-010", the third "Municipality", and the last should be a vector of 12 numeric values (represented as strings)".
-#I'm confused about the class for this. Should it be numeric or vector or strings? Right now it is character, even though I try as.numeric or toString()
 
 ```{r scrape.the.data}
 #3 
@@ -80,7 +83,7 @@ max_day_use_monthly<-Water_URL%>%
   html_nodes("th~ td+ td")%>%
   html_text()
 max_day_use_monthly
-as.numeric(max_day_use_monthly)
+max_day_use_monthly<-as.numeric(max_day_use_monthly)
 class(max_day_use_monthly)
 ```
 
@@ -98,8 +101,8 @@ class(max_day_use_monthly)
 #making a df
 water_df<-data.frame(water_system_name,
             PWSID,
-            ownership,
-            "Max_day_use_monthly"=as.numeric(max_day_use_monthly))
+            "Ownership"=ownership,
+            "Max_day_use_monthly"=max_day_use_monthly)
 
 #adding month & date columns
 month<- c(1,5,9,2,6,10,3,7,11,4,8,12)
@@ -117,7 +120,8 @@ water_chronological_df<- water_df[order(water_df$Month),]
 water_chronological_df
 
 #5 
-ggplot(aes(x=Date, y= Max_day_use_monthly), data=water_chronological_df)+geom_point()+geom_line()
+ggplot(aes(x=Date, y= Max_day_use_monthly), data=water_chronological_df)+geom_point()+geom_line()+
+  labs(title="Max Day Use for Durham in 2022", y="Max Day Use (MGD)")
 
 ```
 
@@ -171,7 +175,7 @@ scrape.it<-function(the_year, the_facility){
 ```{r fetch.and.plot.Durham.2015.data}
 #7 
 max_daily_withdrawals_Durham_2015_df <- scrape.it(2015,'03-32-010')
-view(max_daily_withdrawals_Durham_2015_df)
+max_daily_withdrawals_Durham_2015_df
 
 ```
 
@@ -180,13 +184,18 @@ view(max_daily_withdrawals_Durham_2015_df)
 ```{r fetch.and.plot.Asheville.2015.data}
 #8 
 max_daily_withdrawals_Asheville_2015_df <- scrape.it(2015,'01-11-010')
-view(max_daily_withdrawals_Asheville_2015_df)
+max_daily_withdrawals_Asheville_2015_df
 
-max_daily_withdrawals_Asheville_Durham_2015_df<-bind_rows(max_daily_withdrawals_Asheville_2015_df,max_daily_withdrawals_Durham_2015_df)
+max_daily_withdrawals_Asheville_Durham_2015_df<-
+  bind_rows(max_daily_withdrawals_Asheville_2015_df,
+            max_daily_withdrawals_Durham_2015_df)
 
 max_daily_withdrawals_Asheville_Durham_2015_df
 
-ggplot(max_daily_withdrawals_Asheville_Durham_2015_df, aes(x=Date, y=Max_Day_Use, color=Water_System_Name))+geom_point()+geom_line()+labs(title="Max Day Use for Asheville vs. Durham", y="Max Day Use (MGD)")
+ggplot(max_daily_withdrawals_Asheville_Durham_2015_df, aes(x=Date, 
+                                                           y=Max_Day_Use, color=Water_System_Name))+
+  geom_point()+geom_line()+
+  labs(title="Max Day Use for Asheville vs. Durham", y="Max Day Use (MGD)")
 
 ```
 
@@ -202,7 +211,8 @@ water_df_2010_to_2021_v2<-map2(seq(2010,2021), '01-11-010', scrape.it)
 water_df_2010_to_2021_v2<-bind_rows(water_df_2010_to_2021_v2)
 
 ggplot(water_df_2010_to_2021_v2,aes(y = Max_Day_Use, x=Date)) +
-  geom_line()+geom_smooth(method="lm")+labs(title="Max Day Use for Asheville from 2010 to 2021", y="Max Day Use (MGD)")
+  geom_line()+geom_smooth(method="loess")+
+  labs(title="Max Day Use for Asheville from 2010 to 2021", y="Max Day Use (MGD)")
 
 #Manual way of mapping the data (feel free to ignore)
 Asheville_2010 <- scrape.it(2010,'01-11-010')
@@ -218,14 +228,19 @@ Asheville_2019 <- scrape.it(2019,'01-11-010')
 Asheville_2020 <- scrape.it(2020,'01-11-010')
 Asheville_2021 <- scrape.it(2021,'01-11-010')
 
-water_df_2010_to_2011_manual<-bind_rows(Asheville_2010, Asheville_2011,Asheville_2012, Asheville_2013, Asheville_2014, Asheville_2015, Asheville_2016, Asheville_2017, Asheville_2018, Asheville_2019, Asheville_2020, Asheville_2021)
+water_df_2010_to_2021_manual<-bind_rows(Asheville_2010, Asheville_2011,Asheville_2012, Asheville_2013, 
+                                        Asheville_2014, Asheville_2015, Asheville_2016, Asheville_2017, 
+                                        Asheville_2018, 
+                                        Asheville_2019, Asheville_2020, Asheville_2021)
 
 #Plot
-ggplot(water_df_2010_to_2011_manual,aes(y = Max_Day_Use, x=Date)) +
-  geom_line()+geom_smooth(method="lm")
+ggplot(water_df_2010_to_2021_manual,
+       aes(y = Max_Day_Use, x=Date)) +
+  geom_line()+geom_smooth(method="loess")+
+  labs(title="Max Day Use for Asheville from 2010 to 2021", y="Max Day Use (MGD)")
 
 ```
 
 Question: Just by looking at the plot (i.e. not running statistics), does Asheville have a trend in water usage over time?
 > Answer:
-> Looking at the plot, the water usage in Asheville seems to be increasing over time. 
+> Looking at the plot, the water usage in Asheville had a slight decline from 2010 to 2015 then increased from 2015 to 2021. 
